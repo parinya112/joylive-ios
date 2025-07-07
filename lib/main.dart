@@ -59,7 +59,11 @@ class ExplorePage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => LiveRoomPage(vjName: room['name'], image: room['image'], status: room['status']),
+                            builder: (context) => LiveRoomPage(
+                              vjName: room['name'],
+                              image: room['image'],
+                              status: room['status'],
+                            ),
                           ),
                         );
                       },
@@ -192,23 +196,35 @@ class LiveRoomPage extends StatelessWidget {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
+              child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(vjName, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 4),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: Colors.redAccent,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(status, style: TextStyle(fontWeight: FontWeight.bold)),
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(vjName, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                      SizedBox(height: 4),
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.redAccent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(status, style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
