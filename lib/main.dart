@@ -25,7 +25,7 @@ class ExplorePage extends StatelessWidget {
     (index) => {
       'name': 'VJ Miko${index + 1}',
       'status': ['LIVE', 'PK', 'Audio'][index % 3],
-      'image': 'https://i.imgur.com/BoN9kdC.png', // ✅ รูปจาก Imgur โหลดได้ชัวร์
+      'image': 'https://i.imgur.com/${['B9ZxkDd.png','Z9U0kJb.png','RmT0GzU.png','Jf7Ub7A.png','MQA8LMH.png','oHkRmTk.png','uV3y8UB.png','6mBz8tD.png','NHZr2LU.png','uOPkPH7.png','kLnczQ7.png','5B0cVtD.png'][index]}',
     },
   );
 
@@ -40,7 +40,7 @@ class ExplorePage extends StatelessWidget {
             children: [
               Text(
                 "Explore",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               SizedBox(height: 10),
               Expanded(
@@ -54,10 +54,20 @@ class ExplorePage extends StatelessWidget {
                   ),
                   itemBuilder: (context, index) {
                     final room = rooms[index];
-                    return RoomCard(
-                      name: room['name'],
-                      status: room['status'],
-                      image: room['image'],
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => LiveRoomPage(vjName: room['name'], image: room['image'], status: room['status']),
+                          ),
+                        );
+                      },
+                      child: RoomCard(
+                        name: room['name'],
+                        status: room['status'],
+                        image: room['image'],
+                      ),
                     );
                   },
                 ),
@@ -78,6 +88,19 @@ class RoomCard extends StatelessWidget {
 
   RoomCard({required this.name, required this.status, required this.image});
 
+  Color getBadgeColor(String status) {
+    switch (status) {
+      case 'LIVE':
+        return Colors.redAccent;
+      case 'PK':
+        return Colors.deepPurple;
+      case 'Audio':
+        return Colors.cyan;
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -92,6 +115,21 @@ class RoomCard extends StatelessWidget {
           ),
         ),
         Positioned(
+          top: 8,
+          left: 8,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: getBadgeColor(status),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              status,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            ),
+          ),
+        ),
+        Positioned(
           bottom: 0,
           left: 0,
           right: 0,
@@ -100,16 +138,11 @@ class RoomCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.black.withOpacity(0.5),
               borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16)),
+                bottomLeft: Radius.circular(16),
+                bottomRight: Radius.circular(16),
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
-                Text(status, style: TextStyle(color: Colors.pinkAccent)),
-              ],
-            ),
+            child: Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         )
       ],
@@ -133,6 +166,51 @@ class BottomNavBar extends StatelessWidget {
       ],
       currentIndex: 1,
       onTap: (index) {},
+    );
+  }
+}
+
+class LiveRoomPage extends StatelessWidget {
+  final String vjName;
+  final String image;
+  final String status;
+
+  const LiveRoomPage({super.key, required this.vjName, required this.image, required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          Image.network(
+            image,
+            width: double.infinity,
+            height: double.infinity,
+            fit: BoxFit.cover,
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(vjName, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 4),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(status, style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
