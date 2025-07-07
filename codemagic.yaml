@@ -7,21 +7,29 @@ workflows:
       xcode: latest
       cocoapods: default
     scripts:
-      - name: Install dependencies
-        script: flutter pub get
-      - name: Build iOS app for simulator (no signing)
+      - name: Clean Xcode build folder
         script: |
-          xcodebuild build \
-            -workspace ios/Runner.xcworkspace \
-            -scheme Runner \
-            -sdk iphonesimulator \
-            -destination 'platform=iOS Simulator,name=iPhone 15 Pro,OS=18.0' \
-            -configuration Debug \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
+          flutter clean
+          rm -rf ios/Pods
+          rm -rf ios/Podfile.lock
+          rm -rf ios/Flutter/Flutter.framework
+          rm -rf ios/Flutter/Flutter.podspec
+
+      - name: Install Flutter dependencies
+        script: flutter pub get
+
+      - name: Install CocoaPods dependencies
+        script: |
+          cd ios
+          pod install
+          cd ..
+
+      - name: Build ios app for simulator
+        script: flutter build ios --simulator --debug
+
     artifacts:
-      - ios/build/Runner.app
+      - build/ios/iphonesimulator/Runner.app
+
     publishing:
       email:
         recipients:
