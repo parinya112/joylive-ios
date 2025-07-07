@@ -15,7 +15,7 @@ class JoyLiveApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
         primaryColor: Colors.purpleAccent,
-        fontFamily: "Prompt",
+        fontFamily: "Prompt", // ✅ ใช้ผ่าน Theme เท่านั้น
       ),
       home: const ExplorePage(),
     );
@@ -56,12 +56,11 @@ class ExplorePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Explore",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                )),
+            Text("Explore",
+                style: Theme.of(context).textTheme.headline5!.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    )),
             const SizedBox(height: 12),
             Expanded(
               child: GridView.builder(
@@ -111,7 +110,9 @@ class ExplorePage extends StatelessWidget {
                             child: Text(
                               vj['type']!,
                               style: const TextStyle(
-                                  color: Colors.white, fontSize: 12),
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ),
@@ -128,9 +129,10 @@ class ExplorePage extends StatelessWidget {
                             child: Text(
                               vj['name']!,
                               style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
@@ -152,11 +154,12 @@ class LiveRoomPage extends StatelessWidget {
   final String image;
   final String status;
 
-  const LiveRoomPage(
-      {super.key,
-      required this.vjName,
-      required this.image,
-      required this.status});
+  const LiveRoomPage({
+    super.key,
+    required this.vjName,
+    required this.image,
+    required this.status,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -177,21 +180,25 @@ class LiveRoomPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(vjName,
-                      style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white)),
+                      style: Theme.of(context).textTheme.headline6!.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          )),
                   const SizedBox(height: 6),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.redAccent,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(status,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white)),
+                    child: Text(
+                      status,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                   const Spacer(),
                   Center(
