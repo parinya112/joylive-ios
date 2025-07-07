@@ -1,4 +1,4 @@
-// 🎉 JOY LIVETH - main.dart (UI สว่างระดับโปร พร้อมเปลี่ยนหน้า + ปุ่มออกห้อง)
+// 🎉 JOY LIVETH - main.dart (เวอร์ชันสุดท้าย: กดเข้าห้องได้ + ปุ่มออกมืออาชีพ)
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -77,13 +77,26 @@ class ExplorePage extends StatelessWidget {
   Color cardColor(String status) {
     switch (status) {
       case 'LIVE':
-        return const Color(0xFFFFE9D2); // ครีม-แดง
+        return const Color(0xFFFFE9D2);
       case 'PK':
-        return const Color(0xFFFFE0F7); // ชมพู
+        return const Color(0xFFFFE0F7);
       case 'Audio':
-        return const Color(0xFFE0F7FF); // ฟ้า
+        return const Color(0xFFE0F7FF);
       default:
         return const Color(0xFFFDF6F0);
+    }
+  }
+
+  Color badgeColor(String status) {
+    switch (status) {
+      case 'LIVE':
+        return Colors.redAccent;
+      case 'PK':
+        return Colors.purpleAccent;
+      case 'Audio':
+        return Colors.lightBlue;
+      default:
+        return Colors.deepOrange;
     }
   }
 
@@ -102,8 +115,11 @@ class ExplorePage extends StatelessWidget {
         children: vjs.map((vj) {
           return GestureDetector(
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("คุณเลือก ${vj['name']}"), backgroundColor: Colors.orangeAccent),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ViewerRoom(vjName: vj['name']!, status: vj['status']!),
+                ),
               );
             },
             child: Container(
@@ -132,7 +148,7 @@ class ExplorePage extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: Colors.deepOrange,
+                        color: badgeColor(vj['status']!),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -167,19 +183,21 @@ class ExplorePage extends StatelessWidget {
   }
 }
 
-class LivePage extends StatelessWidget {
-  const LivePage({super.key});
+class ViewerRoom extends StatelessWidget {
+  final String vjName;
+  final String status;
+  const ViewerRoom({super.key, required this.vjName, required this.status});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFE9D2),
+      backgroundColor: Colors.white,
       body: Stack(
         children: [
-          const Center(
+          Center(
             child: Text(
-              "Live Room (Mock)",
-              style: TextStyle(fontSize: 24, color: Colors.black87),
+              '$vjName - $status Room',
+              style: const TextStyle(fontSize: 24, color: Colors.black87),
             ),
           ),
           Positioned(
@@ -192,10 +210,7 @@ class LivePage extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: Colors.white,
                   boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 6,
-                    ),
+                    BoxShadow(color: Colors.black26, blurRadius: 6),
                   ],
                 ),
                 padding: const EdgeInsets.all(12),
@@ -213,18 +228,29 @@ class LivePage extends StatelessWidget {
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text("ออกจากห้องไลฟ์?", style: TextStyle(color: Colors.black)),
+        title: const Text("ออกจากห้องนี้?", style: TextStyle(color: Colors.black)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text("ยกเลิก"),
           ),
           TextButton(
-            onPressed: () => Navigator.of(context).maybePop(),
+            onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
             child: const Text("ออก", style: TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
+    );
+  }
+}
+
+class LivePage extends StatelessWidget {
+  const LivePage({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Color(0xFFFFE9D2),
+      body: Center(child: Text("Live Page (ฝั่ง VJ)", style: TextStyle(fontSize: 24))),
     );
   }
 }
