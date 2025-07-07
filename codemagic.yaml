@@ -1,0 +1,27 @@
+workflows:
+  ios-simulator-build:
+    name: iOS Simulator Build for Appetize
+    max_build_duration: 60
+    environment:
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install CocoaPods
+        script: |
+          cd ios
+          pod install
+          cd ..
+      - name: Build Runner.app for Simulator
+        script: |
+          xcodebuild build \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -sdk iphonesimulator \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO
+    artifacts:
+      - /Users/builder/Library/Developer/Xcode/DerivedData/**/Build/Products/Debug-iphonesimulator/Runner.app
+    publishing:
+      email:
+        recipients:
+          - lovenicenoona22@gmail.com
