@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(JoyLiveApp());
+  runApp(const JoyLiveApp());
 }
 
 class JoyLiveApp extends StatelessWidget {
+  const JoyLiveApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -13,91 +15,31 @@ class JoyLiveApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
         primaryColor: Colors.purpleAccent,
+        fontFamily: "Prompt",
       ),
-      home: ExplorePage(),
+      home: const ExplorePage(),
     );
   }
 }
 
 class ExplorePage extends StatelessWidget {
-  final List<Map<String, dynamic>> rooms = List.generate(
-    12,
-    (index) => {
-      'name': 'VJ Miko${index + 1}',
-      'status': ['LIVE', 'PK', 'Audio'][index % 3],
-      'image': 'https://i.imgur.com/${['B9ZxkDd.png','Z9U0kJb.png','RmT0GzU.png','Jf7Ub7A.png','MQA8LMH.png','oHkRmTk.png','uV3y8UB.png','6mBz8tD.png','NHZr2LU.png','uOPkPH7.png','kLnczQ7.png','5B0cVtD.png'][index]}',
-    },
-  );
+  const ExplorePage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Explore",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Colors.white),
-              ),
-              SizedBox(height: 10),
-              Expanded(
-                child: GridView.builder(
-                  itemCount: rooms.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.75,
-                  ),
-                  itemBuilder: (context, index) {
-                    final room = rooms[index];
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => LiveRoomPage(
-                              vjName: room['name'],
-                              image: room['image'],
-                              status: room['status'],
-                            ),
-                          ),
-                        );
-                      },
-                      child: RoomCard(
-                        name: room['name'],
-                        status: room['status'],
-                        image: room['image'],
-                      ),
-                    );
-                  },
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-      bottomNavigationBar: BottomNavBar(),
-    );
-  }
-}
+  final List<Map<String, String>> vjList = const [
+    {"name": "VJ Miko1", "type": "LIVE", "image": "assets/images/vj1.jpg"},
+    {"name": "VJ Miko2", "type": "PK", "image": "assets/images/vj2.jpg"},
+    {"name": "VJ Miko3", "type": "Audio", "image": "assets/images/vj3.jpg"},
+    {"name": "VJ Miko4", "type": "LIVE", "image": "assets/images/vj4.jpg"},
+    {"name": "VJ Miko5", "type": "PK", "image": "assets/images/vj5.jpg"},
+    {"name": "VJ Miko6", "type": "Audio", "image": "assets/images/vj6.jpg"},
+  ];
 
-class RoomCard extends StatelessWidget {
-  final String name;
-  final String status;
-  final String image;
-
-  RoomCard({required this.name, required this.status, required this.image});
-
-  Color getBadgeColor(String status) {
-    switch (status) {
+  Color getStatusColor(String type) {
+    switch (type) {
       case 'LIVE':
         return Colors.redAccent;
       case 'PK':
-        return Colors.deepPurple;
+        return Colors.purple;
       case 'Audio':
         return Colors.cyan;
       default:
@@ -107,69 +49,100 @@ class RoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(16),
-          child: Image.network(
-            image,
-            width: double.infinity,
-            height: double.infinity,
-            fit: BoxFit.cover,
-          ),
-        ),
-        Positioned(
-          top: 8,
-          left: 8,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: getBadgeColor(status),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              status,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            padding: EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(16),
-                bottomRight: Radius.circular(16),
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("Explore",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                )),
+            const SizedBox(height: 12),
+            Expanded(
+              child: GridView.builder(
+                itemCount: vjList.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 16,
+                  crossAxisSpacing: 16,
+                  childAspectRatio: 3 / 4,
+                ),
+                itemBuilder: (context, index) {
+                  final vj = vjList[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => LiveRoomPage(
+                            vjName: vj['name']!,
+                            image: vj['image']!,
+                            status: vj['type']!,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.asset(
+                            vj['image']!,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            height: double.infinity,
+                          ),
+                        ),
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: getStatusColor(vj['type']!),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              vj['type']!,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 12),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 0,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width / 2 - 24,
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.5),
+                              borderRadius: const BorderRadius.vertical(
+                                  bottom: Radius.circular(16)),
+                            ),
+                            child: Text(
+                              vj['name']!,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
-            child: Text(name, style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-        )
-      ],
-    );
-  }
-}
-
-class BottomNavBar extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.black,
-      selectedItemColor: Colors.purpleAccent,
-      unselectedItemColor: Colors.grey,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-        BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Explore"),
-        BottomNavigationBarItem(icon: Icon(Icons.live_tv), label: "Live"),
-        BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
-      ],
-      currentIndex: 1,
-      onTap: (index) {},
+          ],
+        ),
+      ),
     );
   }
 }
@@ -179,7 +152,11 @@ class LiveRoomPage extends StatelessWidget {
   final String image;
   final String status;
 
-  const LiveRoomPage({super.key, required this.vjName, required this.image, required this.status});
+  const LiveRoomPage(
+      {super.key,
+      required this.vjName,
+      required this.image,
+      required this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +164,7 @@ class LiveRoomPage extends StatelessWidget {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          Image.network(
+          Image.asset(
             image,
             width: double.infinity,
             height: double.infinity,
@@ -195,32 +172,42 @@ class LiveRoomPage extends StatelessWidget {
           ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
+              padding: const EdgeInsets.all(16),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
+                  Text(vjName,
+                      style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
+                  const SizedBox(height: 6),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.redAccent,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(status,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
-                  SizedBox(width: 8),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(vjName, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                      SizedBox(height: 4),
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.redAccent,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(status, style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Spacer(),
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.logout),
+                      label: const Text("ออกจากห้อง"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black.withOpacity(0.6),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 12),
                       ),
-                    ],
+                    ),
                   ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
