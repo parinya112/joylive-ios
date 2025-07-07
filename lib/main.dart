@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-void main() {
-  runApp(const JoyLiveApp());
-}
+void main() => runApp(const JoyLiveApp());
 
 class JoyLiveApp extends StatelessWidget {
   const JoyLiveApp({super.key});
@@ -11,15 +9,14 @@ class JoyLiveApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
       title: 'JOY LIVETH',
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: Colors.black,
-        primaryColor: Colors.purpleAccent,
         textTheme: GoogleFonts.promptTextTheme(
           ThemeData.dark().textTheme,
         ),
+        scaffoldBackgroundColor: Colors.black,
       ),
+      debugShowCheckedModeBanner: false,
       home: const ExplorePage(),
     );
   }
@@ -28,17 +25,17 @@ class JoyLiveApp extends StatelessWidget {
 class ExplorePage extends StatelessWidget {
   const ExplorePage({super.key});
 
-  final List<Map<String, String>> vjList = const [
-    {"name": "VJ Miko1", "type": "LIVE", "image": "assets/images/vj1.jpg"},
-    {"name": "VJ Miko2", "type": "PK", "image": "assets/images/vj2.jpg"},
-    {"name": "VJ Miko3", "type": "Audio", "image": "assets/images/vj3.jpg"},
-    {"name": "VJ Miko4", "type": "LIVE", "image": "assets/images/vj4.jpg"},
-    {"name": "VJ Miko5", "type": "PK", "image": "assets/images/vj5.jpg"},
-    {"name": "VJ Miko6", "type": "Audio", "image": "assets/images/vj6.jpg"},
+  final List<Map<String, String>> vjs = const [
+    {"name": "VJ Miko1", "status": "LIVE"},
+    {"name": "VJ Miko2", "status": "PK"},
+    {"name": "VJ Miko3", "status": "Audio"},
+    {"name": "VJ Miko4", "status": "LIVE"},
+    {"name": "VJ Miko5", "status": "PK"},
+    {"name": "VJ Miko6", "status": "Audio"},
   ];
 
-  Color getStatusColor(String type) {
-    switch (type) {
+  Color statusColor(String status) {
+    switch (status) {
       case 'LIVE':
         return Colors.redAccent;
       case 'PK':
@@ -53,170 +50,105 @@ class ExplorePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text("Explore",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                )),
-            const SizedBox(height: 12),
-            Expanded(
-              child: GridView.builder(
-                itemCount: vjList.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: 3 / 4,
+      appBar: AppBar(
+        title: const Text("Explore", style: TextStyle(fontSize: 28)),
+        centerTitle: false,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
+      body: GridView.count(
+        crossAxisCount: 2,
+        childAspectRatio: 0.75,
+        padding: const EdgeInsets.all(12),
+        children: vjs.map((vj) {
+          return Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade900,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.purple.withOpacity(0.15),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-                itemBuilder: (context, index) {
-                  final vj = vjList[index];
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => LiveRoomPage(
-                            vjName: vj['name']!,
-                            image: vj['image']!,
-                            status: vj['type']!,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Stack(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Image.asset(
-                            vj['image']!,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                          ),
-                        ),
-                        Positioned(
-                          top: 8,
-                          left: 8,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: getStatusColor(vj['type']!),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              vj['type']!,
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 12),
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          child: Container(
-                            width: MediaQuery.of(context).size.width / 2 - 24,
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.5),
-                              borderRadius: const BorderRadius.vertical(
-                                  bottom: Radius.circular(16)),
-                            ),
-                            child: Text(
-                              vj['name']!,
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold),
-                            ),
-                          ),
+              ],
+            ),
+            child: Stack(
+              children: [
+                // 🔳 Placeholder ภาพ
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.grey.shade800,
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.person, size: 48, color: Colors.white24),
+                    ),
+                  ),
+                ),
+                // 🔴 Badge สถานะ
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: statusColor(vj['status']!),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: statusColor(vj['status']!).withOpacity(0.6),
+                          blurRadius: 10,
                         ),
                       ],
                     ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class LiveRoomPage extends StatelessWidget {
-  final String vjName;
-  final String image;
-  final String status;
-
-  const LiveRoomPage({
-    super.key,
-    required this.vjName,
-    required this.image,
-    required this.status,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Stack(
-        children: [
-          Image.asset(
-            image,
-            width: double.infinity,
-            height: double.infinity,
-            fit: BoxFit.cover,
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(vjName,
+                    child: Text(
+                      vj['status']!,
                       style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white)),
-                  const SizedBox(height: 6),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.redAccent,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(status,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.white)),
-                  ),
-                  const Spacer(),
-                  Center(
-                    child: ElevatedButton.icon(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.logout),
-                      label: const Text("ออกจากห้อง"),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black.withOpacity(0.6),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 12),
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                ],
-              ),
+                ),
+                // 👤 ชื่อ VJ
+                Positioned(
+                  bottom: 10,
+                  left: 10,
+                  child: Text(
+                    vj['name']!,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      shadows: [
+                        Shadow(blurRadius: 2, color: Colors.black),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
+          );
+        }).toList(),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: Colors.black,
+        selectedItemColor: Colors.amberAccent,
+        unselectedItemColor: Colors.white38,
+        currentIndex: 0,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explore'),
+          BottomNavigationBarItem(icon: Icon(Icons.live_tv), label: 'Live'),
+          BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: 'Wallet'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
+        onTap: (index) {
+          // TODO: Navigation future
+        },
       ),
     );
   }
