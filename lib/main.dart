@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const JoyLiveApp());
@@ -15,7 +16,9 @@ class JoyLiveApp extends StatelessWidget {
       theme: ThemeData.dark().copyWith(
         scaffoldBackgroundColor: Colors.black,
         primaryColor: Colors.purpleAccent,
-        fontFamily: "Prompt", // ✅ ใช้ผ่าน Theme เท่านั้น
+        textTheme: GoogleFonts.promptTextTheme(
+          ThemeData.dark().textTheme,
+        ),
       ),
       home: const ExplorePage(),
     );
@@ -56,11 +59,12 @@ class ExplorePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Explore",
-                style: Theme.of(context).textTheme.headline5!.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    )),
+            const Text("Explore",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                )),
             const SizedBox(height: 12),
             Expanded(
               child: GridView.builder(
@@ -110,9 +114,7 @@ class ExplorePage extends StatelessWidget {
                             child: Text(
                               vj['type']!,
                               style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
+                                  color: Colors.white, fontSize: 12),
                             ),
                           ),
                         ),
@@ -129,10 +131,9 @@ class ExplorePage extends StatelessWidget {
                             child: Text(
                               vj['name']!,
                               style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                              ),
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold),
                             ),
                           ),
                         ),
@@ -180,25 +181,21 @@ class LiveRoomPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(vjName,
-                      style: Theme.of(context).textTheme.headline6!.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          )),
+                      style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white)),
                   const SizedBox(height: 6),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: Colors.redAccent,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Text(
-                      status,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
+                    child: Text(status,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
                   const Spacer(),
                   Center(
