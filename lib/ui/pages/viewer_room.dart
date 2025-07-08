@@ -161,7 +161,7 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
                   icon: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
                   onPressed: () => setState(() => showGiftPopup = true),
                 ),
-                IconButton(icon: const Icon(Icons.swords, color: Colors.white), onPressed: () {}),
+                IconButton(icon: const Icon(Icons.sports_martial_arts, color: Colors.white), onPressed: () {}),
               ],
             ),
           ),
