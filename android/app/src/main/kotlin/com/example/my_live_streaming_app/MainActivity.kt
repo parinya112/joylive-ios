@@ -1,4 +1,4 @@
-package com.example.my_live_streaming_app  // เปลี่ยนตาม namespace จริง
+package com.example.my_live_streaming_app
 
 import io.flutter.embedding.android.FlutterActivity
 
