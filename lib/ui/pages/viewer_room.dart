@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 class ViewerRoomPage extends StatefulWidget {
-  const ViewerRoomPage({super.key});
+  final String vjName;
+  final String status;
+
+  const ViewerRoomPage({
+    super.key,
+    required this.vjName,
+    required this.status,
+  });
 
   @override
   State<ViewerRoomPage> createState() => _ViewerRoomPageState();
@@ -35,7 +42,7 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
         userExp -= 100;
       }
       vjEarned = giftValue;
-      giftAnimations.add('🎁 ส่งของขวัญ $giftValue coin ให้ VJ!');
+      giftAnimations.add('🎁 ส่งของขวัญ $giftValue coin ให้ ${widget.vjName}!');
     });
 
     Future.delayed(const Duration(seconds: 3), () {
@@ -54,10 +61,11 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          const Center(
+          // ชื่อ VJ + สถานะ
+          Center(
             child: Text(
-              'VJ Miko2 - PK',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              '${widget.vjName} - ${widget.status}',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
 
@@ -114,7 +122,7 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
                   color: Colors.green.shade100,
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Text('🎉 VJ ได้รับ $vjEarned coin!', style: const TextStyle(fontWeight: FontWeight.bold)),
+                child: Text('🎉 ${widget.vjName} ได้รับ $vjEarned coin!', style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             ),
 

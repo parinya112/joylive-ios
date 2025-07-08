@@ -57,7 +57,10 @@ class ExplorePage extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => ViewerRoom(vjName: vj['name']!, status: vj['status']!),
+                  builder: (_) => ViewerRoomPage(
+                    vjName: vj['name']!,
+                    status: vj['status']!,
+                  ),
                 ),
               );
             },
