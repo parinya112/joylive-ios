@@ -1,4 +1,4 @@
-package com.example.my_live_streaming_app
+package com.example.joyliveth
 
 import io.flutter.embedding.android.FlutterActivity
 
