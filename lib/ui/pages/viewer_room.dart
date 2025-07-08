@@ -1,106 +1,157 @@
 import 'package:flutter/material.dart';
-import '../widgets/chat_input.dart';
-import '../widgets/level_badge.dart';
 
-class ViewerRoom extends StatelessWidget {
-  final String vjName;
-  final String status;
-
-  const ViewerRoom({
-    super.key,
-    required this.vjName,
-    required this.status,
-  });
+class ViewerRoomPage extends StatelessWidget {
+  const ViewerRoomPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    int userLevel = 1;
+    int userExp = 50;
+    int userCoins = 1230;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // 👤 VJ Preview (จำลองกล้อง VJ)
-          Positioned.fill(
-            child: Container(
-              color: const Color(0xFFF8F3ED),
-              child: const Center(
-                child: Icon(Icons.videocam, size: 100, color: Colors.black12),
+          const Center(
+            child: Text(
+              'VJ Miko1 - LIVE',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          // ปุ่มออกจากห้อง
+          Positioned(
+            top: 40,
+            right: 20,
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: 25,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.red),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
               ),
             ),
           ),
 
-          // 🆔 แสดงชื่อ VJ + Level
+          // มุมซ้ายบน: LV
           Positioned(
-            top: 60,
+            top: 40,
             left: 20,
-            child: Row(
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Text(
+                'LV $userLevel',
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ),
+          ),
+
+          // มุมขวาบน: Coin
+          Positioned(
+            top: 40,
+            right: 80,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.amber.shade700,
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Text(
+                '💰 $userCoins',
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ),
+          ),
+
+          // ล่างสุด: EXP + ปุ่มของขวัญ + แชท
+          Positioned(
+            bottom: 20,
+            left: 20,
+            right: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const CircleAvatar(
-                  backgroundColor: Colors.orangeAccent,
-                  child: Icon(Icons.person, color: Colors.white),
-                ),
-                const SizedBox(width: 10),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      vjName,
-                      style: const TextStyle(
-                          color: Colors.black, fontWeight: FontWeight.bold),
+                // EXP Progress Bar
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: LinearProgressIndicator(
+                    value: userExp / 100,
+                    minHeight: 8,
+                    backgroundColor: Colors.grey.shade300,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Colors.purpleAccent,
                     ),
-                    const LevelBadge(level: 25),
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // ปุ่มส่งของขวัญ + ช่องแชท + ปุ่มส่ง
+                Row(
+                  children: [
+                    // ปุ่มส่งของขวัญ
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          // TODO: เปิด Gift Popup
+                        },
+                        icon: const Icon(Icons.card_giftcard, color: Colors.red),
+                        label: const Text("ส่งของขวัญ"),
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.purple,
+                          backgroundColor: Colors.white,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    // ช่องพิมพ์แชท
+                    Expanded(
+                      flex: 3,
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: "พิมพ์แชท...",
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    // ปุ่มส่งแชท
+                    ElevatedButton(
+                      onPressed: () {
+                        // TODO: ส่งแชท
+                      },
+                      child: const Text("ส่ง"),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.deepPurple,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
-          ),
-
-          // ❌ ปุ่มออก
-          Positioned(
-            top: 60,
-            right: 20,
-            child: GestureDetector(
-              onTap: () => _showExitDialog(context),
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4)],
-                ),
-                child: const Icon(Icons.close, color: Colors.redAccent),
-              ),
-            ),
-          ),
-
-          // 💬 ช่องแชท + ส่งข้อความ
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: ChatInput(onSend: (message) {
-              // TODO: ส่งข้อความ
-              print('ส่งแชท: $message');
-            }),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showExitDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: const Text("ออกจากห้องนี้?", style: TextStyle(color: Colors.black)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("ยกเลิก"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-            child: const Text("ออก", style: TextStyle(color: Colors.redAccent)),
           ),
         ],
       ),
