@@ -8,48 +8,38 @@ class ViewerRoomPage extends StatefulWidget {
 }
 
 class _ViewerRoomPageState extends State<ViewerRoomPage> {
-  int userExp = 50;
   int userLevel = 1;
-  int viewerCoin = 1230;
-  int vjCoinEarned = 0;
-
+  int userExp = 50;
+  int userCoins = 1230;
+  int vjEarned = 0;
   final TextEditingController _chatController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-
-  List<String> chatMessages = [];
-
-  void _sendGift() {
-    if (viewerCoin >= 35) {
-      setState(() {
-        viewerCoin -= 35;
-        userExp += 15;
-        vjCoinEarned += 35;
-        if (userExp >= 100) {
-          userExp -= 100;
-          userLevel += 1;
-        }
-        chatMessages.add("🎁 คุณส่งของขวัญให้ VJ (+35 coin, +15 EXP)");
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("ส่งของขวัญสำเร็จ!")),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("coin ไม่พอ!")),
-      );
-    }
-  }
+  final List<String> chatMessages = [];
+  final List<String> giftAnimations = [];
 
   void _sendChat() {
-    String text = _chatController.text.trim();
-    if (text.isNotEmpty) {
+    if (_chatController.text.trim().isEmpty) return;
+    setState(() {
+      chatMessages.add('🎖 LV$userLevel: ${_chatController.text.trim()}');
+      _chatController.clear();
+    });
+  }
+
+  void _sendGift() {
+    setState(() {
+      int giftValue = 499;
+      userCoins -= giftValue;
+      userExp += 20;
+      vjEarned += giftValue;
+      giftAnimations.add('🎁 ส่งของขวัญ 499 coin ให้ VJ!');
+    });
+
+    Future.delayed(const Duration(seconds: 3), () {
       setState(() {
-        chatMessages.add("LV$userLevel 👤: $text");
-        _chatController.clear();
+        if (giftAnimations.isNotEmpty) {
+          giftAnimations.removeAt(0);
+        }
       });
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent + 60);
-    }
+    });
   }
 
   @override
@@ -58,22 +48,20 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // LIVE Title
-          const Align(
-            alignment: Alignment.center,
+          const Center(
             child: Text(
-              'VJ Miko3 - Audio',
+              'VJ Miko1 - LIVE',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
 
-          // ปุ่มออก
+          // ปุ่มออกจากห้อง
           Positioned(
             top: 40,
             right: 20,
             child: CircleAvatar(
               backgroundColor: Colors.white,
-              radius: 24,
+              radius: 25,
               child: IconButton(
                 icon: const Icon(Icons.close, color: Colors.red),
                 onPressed: () => Navigator.pop(context),
@@ -81,63 +69,69 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
             ),
           ),
 
-          // coin ของ VJ (มุมซ้ายบน)
-          Positioned(
-            top: 40,
-            left: 20,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.amber.shade700,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Text(
-                '🎖️ $vjCoinEarned',
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-              ),
-            ),
-          ),
-
-          // แสดงแชทแบบ overlay
+          // Gift Animation
           Positioned(
             top: 100,
-            left: 12,
-            right: 12,
-            bottom: 130,
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: chatMessages.length,
-              itemBuilder: (context, index) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Text(chatMessages[index]),
-              ),
+            left: 20,
+            right: 20,
+            child: Column(
+              children: giftAnimations.map((text) => AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                opacity: 1.0,
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(text, style: const TextStyle(fontSize: 14)),
+                ),
+              )).toList(),
             ),
           ),
 
-          // ด้านล่าง: EXP bar + gift/chat
+          // แสดงแชท Overlay
+          Positioned(
+            bottom: 150,
+            left: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: chatMessages.map((msg) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  child: Text(msg, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                ),
+              )).toList(),
+            ),
+          ),
+
+          // EXP Bar + Gift/Chat
           Positioned(
             bottom: 20,
-            left: 12,
-            right: 12,
+            left: 20,
+            right: 20,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // EXP bar
+                // EXP Progress
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: LinearProgressIndicator(
-                    value: userExp / 100,
+                    value: userExp.clamp(0, 100) / 100,
                     minHeight: 8,
                     backgroundColor: Colors.grey.shade300,
-                    valueColor: const AlwaysStoppedAnimation(Colors.purple),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.purpleAccent),
                   ),
                 ),
                 const SizedBox(height: 10),
 
-                // แถวของขวัญ + แชท
                 Row(
                   children: [
-                    // ปุ่มของขวัญ
                     Expanded(
                       flex: 2,
                       child: ElevatedButton.icon(
@@ -156,7 +150,6 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
                     ),
                     const SizedBox(width: 8),
 
-                    // ช่องพิมพ์
                     Expanded(
                       flex: 3,
                       child: TextField(
@@ -176,7 +169,6 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
                     ),
                     const SizedBox(width: 8),
 
-                    // ปุ่มส่ง
                     ElevatedButton(
                       onPressed: _sendChat,
                       child: const Text("ส่ง"),
