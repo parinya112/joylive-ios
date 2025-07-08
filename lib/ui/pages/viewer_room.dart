@@ -96,7 +96,7 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
             ),
           ),
 
-          // LV ชั่วคราว
+          // LV ชั่วคราว (ขึ้นเฉพาะตอนเข้าห้อง, แชท, ส่งของขวัญ)
           if (showLevelTemp)
             Positioned(
               top: 40,
