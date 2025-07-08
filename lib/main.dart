@@ -82,7 +82,12 @@ class ExplorePage extends StatelessWidget {
           return GestureDetector(
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => ViewerRoom(vjName: vj['name']!, status: vj['status']!)),
+              MaterialPageRoute(
+                builder: (_) => ViewerRoomPage(
+                  vjName: vj['name']!,
+                  status: vj['status']!,
+                ),
+              ),
             ),
             child: Container(
               margin: const EdgeInsets.all(8),
@@ -96,11 +101,7 @@ class ExplorePage extends StatelessWidget {
                   const Positioned.fill(
                     child: Center(child: Icon(Icons.person_outline, size: 48, color: Colors.black26)),
                   ),
-                  Positioned(
-                    top: 10,
-                    left: 10,
-                    child: _badge(vj['status']!),
-                  ),
+                  Positioned(top: 10, left: 10, child: _badge(vj['status']!)),
                   Positioned(
                     bottom: 10,
                     left: 10,
@@ -120,20 +121,31 @@ class ExplorePage extends StatelessWidget {
 
   Color _cardColor(String status) {
     switch (status) {
-      case 'LIVE': return const Color(0xFFFFE9D2);
-      case 'PK': return const Color(0xFFFFE0F7);
-      case 'Audio': return const Color(0xFFE0F7FF);
-      default: return const Color(0xFFFDF6F0);
+      case 'LIVE':
+        return const Color(0xFFFFE9D2);
+      case 'PK':
+        return const Color(0xFFFFE0F7);
+      case 'Audio':
+        return const Color(0xFFE0F7FF);
+      default:
+        return const Color(0xFFFDF6F0);
     }
   }
 
   Widget _badge(String status) {
     Color color;
     switch (status) {
-      case 'LIVE': color = Colors.redAccent; break;
-      case 'PK': color = Colors.purpleAccent; break;
-      case 'Audio': color = Colors.lightBlue; break;
-      default: color = Colors.grey;
+      case 'LIVE':
+        color = Colors.redAccent;
+        break;
+      case 'PK':
+        color = Colors.purpleAccent;
+        break;
+      case 'Audio':
+        color = Colors.lightBlue;
+        break;
+      default:
+        color = Colors.grey;
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -143,37 +155,58 @@ class ExplorePage extends StatelessWidget {
   }
 }
 
-class ViewerRoom extends StatefulWidget {
+class ViewerRoomPage extends StatefulWidget {
   final String vjName;
   final String status;
-  const ViewerRoom({super.key, required this.vjName, required this.status});
+
+  const ViewerRoomPage({
+    super.key,
+    required this.vjName,
+    required this.status,
+  });
 
   @override
-  State<ViewerRoom> createState() => _ViewerRoomState();
+  State<ViewerRoomPage> createState() => _ViewerRoomPageState();
 }
 
-class _ViewerRoomState extends State<ViewerRoom> {
-  int userLevel = 1;
-  int userExp = 0;
-  final int expPerLevel = 100;
+class _ViewerRoomPageState extends State<ViewerRoomPage> {
+  int userLevel = 2;
+  int userExp = 80;
+  int userCoins = 1230;
+  int vjEarned = 0;
+
   final TextEditingController _chatController = TextEditingController();
   final List<String> chatMessages = [];
+  final List<String> giftAnimations = [];
 
-  void _sendGift() {
+  void _sendChat() {
+    if (_chatController.text.trim().isEmpty) return;
     setState(() {
-      userExp += 25;
-      if (userExp >= expPerLevel) {
-        userExp -= expPerLevel;
-        userLevel++;
-      }
+      chatMessages.add('🎖 LV$userLevel: ${_chatController.text.trim()}');
+      _chatController.clear();
     });
   }
 
-  void _sendChat() {
-    if (_chatController.text.isEmpty) return;
+  void _sendGift() {
     setState(() {
-      chatMessages.add(_chatController.text);
-      _chatController.clear();
+      int giftValue = 499;
+      userCoins -= giftValue;
+      userExp += 20;
+      if (userExp >= 100) {
+        userLevel++;
+        userExp -= 100;
+      }
+      vjEarned = giftValue;
+      giftAnimations.add('🎁 ส่งของขวัญ $giftValue coin ให้ ${widget.vjName}!');
+    });
+
+    Future.delayed(const Duration(seconds: 3), () {
+      setState(() {
+        vjEarned = 0;
+        if (giftAnimations.isNotEmpty) {
+          giftAnimations.removeAt(0);
+        }
+      });
     });
   }
 
@@ -183,78 +216,169 @@ class _ViewerRoomState extends State<ViewerRoom> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          Center(child: Text('${widget.vjName} - ${widget.status}', style: const TextStyle(fontSize: 24))),
-          Positioned(top: 40, right: 20, child: _exitButton(context)),
-          Positioned(top: 40, left: 20, child: _levelBadge()),
-          Positioned(bottom: 80, left: 20, right: 20, child: _giftAndChatBar()),
-          Positioned(bottom: 140, left: 20, right: 20, child: _chatList()),
-        ],
-      ),
-    );
-  }
-
-  Widget _exitButton(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showExitDialog(context),
-      child: Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 6)],
-        ),
-        padding: const EdgeInsets.all(12),
-        child: const Icon(Icons.close, color: Colors.redAccent),
-      ),
-    );
-  }
-
-  Widget _levelBadge() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-      decoration: BoxDecoration(color: Colors.deepOrange, borderRadius: BorderRadius.circular(20)),
-      child: Text('LV $userLevel', style: const TextStyle(color: Colors.white)),
-    );
-  }
-
-  Widget _giftAndChatBar() {
-    return Row(
-      children: [
-        ElevatedButton(onPressed: _sendGift, child: const Text("🎁 ส่งของขวัญ")),
-        const SizedBox(width: 10),
-        Expanded(
-          child: TextField(
-            controller: _chatController,
-            decoration: InputDecoration(
-              hintText: "พิมพ์แชท...",
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(20)),
+          // VJ Info Center
+          Center(
+            child: Text('${widget.vjName} - ${widget.status}',
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            onSubmitted: (_) => _sendChat(),
           ),
-        ),
-        const SizedBox(width: 10),
-        ElevatedButton(onPressed: _sendChat, child: const Text("ส่ง")),
-      ],
-    );
-  }
 
-  Widget _chatList() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: chatMessages.map((msg) => Text(msg, style: const TextStyle(color: Colors.black87))).toList(),
-    );
-  }
+          // Exit button
+          Positioned(
+            top: 40,
+            right: 20,
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: 25,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.red),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ),
 
-  void _showExitDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("ออกจากห้องนี้?"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("ยกเลิก")),
-          TextButton(
-            onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-            child: const Text("ออก", style: TextStyle(color: Colors.redAccent)),
+          // Viewer LV
+          Positioned(
+            top: 40,
+            left: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(20)),
+              child: Text('LV $userLevel', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ),
+
+          // Coin Display
+          Positioned(
+            top: 40,
+            left: 100,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(color: Colors.amber.shade100, borderRadius: BorderRadius.circular(20)),
+              child: Text('💰 $userCoins coin', style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
+
+          // VJ Earn Display
+          if (vjEarned > 0)
+            Positioned(
+              top: 70,
+              right: 20,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text('🎉 ${widget.vjName} ได้รับ $vjEarned coin!',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+
+          // Gift Animations
+          Positioned(
+            top: 100,
+            left: 20,
+            right: 20,
+            child: Column(
+              children: giftAnimations.map((text) => AnimatedOpacity(
+                duration: const Duration(milliseconds: 500),
+                opacity: 1.0,
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 10),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.purple.shade100,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(text, style: const TextStyle(fontSize: 14)),
+                ),
+              )).toList(),
+            ),
+          ),
+
+          // Chat Overlay
+          Positioned(
+            bottom: 150,
+            left: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: chatMessages.map((msg) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.6),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  child: Text(msg, style: const TextStyle(color: Colors.white, fontSize: 12)),
+                ),
+              )).toList(),
+            ),
+          ),
+
+          // Bottom bar: EXP bar + Gift + Chat
+          Positioned(
+            bottom: 20,
+            left: 20,
+            right: 20,
+            child: Column(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: LinearProgressIndicator(
+                    value: userExp.clamp(0, 100) / 100,
+                    minHeight: 8,
+                    backgroundColor: Colors.grey.shade300,
+                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.purpleAccent),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: _sendGift,
+                      icon: const Icon(Icons.card_giftcard, color: Colors.red),
+                      label: const Text("ส่งของขวัญ"),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.purple,
+                        backgroundColor: Colors.white,
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _chatController,
+                        decoration: InputDecoration(
+                          hintText: "พิมพ์แชท...",
+                          filled: true,
+                          fillColor: Colors.grey.shade100,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onSubmitted: (_) => _sendChat(),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _sendChat,
+                      child: const Text("ส่ง"),
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.deepPurple,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -267,7 +391,7 @@ class WalletPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Center(child: Text("Wallet Page (แสดง QR / LINE แอด)", style: TextStyle(fontSize: 20))),
+      body: Center(child: Text("Wallet Page (เติม coin / QR)", style: TextStyle(fontSize: 20))),
     );
   }
 }
