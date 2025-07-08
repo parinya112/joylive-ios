@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../pages/viewer_room.dart';
+import 'viewer_room.dart';
 
 class ExplorePage extends StatelessWidget {
   const ExplorePage({super.key});
@@ -7,22 +7,18 @@ class ExplorePage extends StatelessWidget {
   final List<Map<String, String>> vjs = const [
     {"name": "VJ Miko1", "status": "LIVE"},
     {"name": "VJ Miko2", "status": "PK"},
-    {"name": "VJ Miko3", "status": "Audio"},
-    {"name": "VJ Miko4", "status": "LIVE"},
-    {"name": "VJ Miko5", "status": "PK"},
-    {"name": "VJ Miko6", "status": "Audio"},
+    {"name": "VJ Miko3", "status": "LIVE"},
+    {"name": "VJ Miko4", "status": "PK"},
   ];
 
   Color cardColor(String status) {
     switch (status) {
       case 'LIVE':
-        return const Color(0xFFFFE9D2);
+        return const Color(0xFF181818);
       case 'PK':
-        return const Color(0xFFFFE0F7);
-      case 'Audio':
-        return const Color(0xFFE0F7FF);
+        return const Color(0xFF2A002A);
       default:
-        return const Color(0xFFFDF6F0);
+        return Colors.grey.shade800;
     }
   }
 
@@ -32,26 +28,25 @@ class ExplorePage extends StatelessWidget {
         return Colors.redAccent;
       case 'PK':
         return Colors.purpleAccent;
-      case 'Audio':
-        return Colors.lightBlue;
       default:
-        return Colors.deepOrange;
+        return Colors.grey;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        title: const Text("Explore", style: TextStyle(fontSize: 28, color: Colors.black87)),
-        elevation: 0,
-      ),
-      body: GridView.count(
-        crossAxisCount: 2,
-        childAspectRatio: 0.75,
+      body: GridView.builder(
         padding: const EdgeInsets.all(12),
-        children: vjs.map((vj) {
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 0.75,
+        ),
+        itemCount: vjs.length,
+        itemBuilder: (context, index) {
+          final vj = vjs[index];
           return GestureDetector(
             onTap: () {
               Navigator.push(
@@ -65,30 +60,21 @@ class ExplorePage extends StatelessWidget {
               );
             },
             child: Container(
-              margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: cardColor(vj['status']!),
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.shade400,
-                    blurRadius: 8,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/vj_preview.png'),
+                  fit: BoxFit.cover,
+                ),
               ),
               child: Stack(
                 children: [
-                  const Positioned.fill(
-                    child: Center(
-                      child: Icon(Icons.person_outline, size: 48, color: Colors.black26),
-                    ),
-                  ),
                   Positioned(
                     top: 10,
                     left: 10,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: badgeColor(vj['status']!),
                         borderRadius: BorderRadius.circular(20),
@@ -109,9 +95,10 @@ class ExplorePage extends StatelessWidget {
                     child: Text(
                       vj['name']!,
                       style: const TextStyle(
-                        color: Colors.black87,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                         fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                        shadows: [Shadow(color: Colors.black, blurRadius: 4)],
                       ),
                     ),
                   ),
@@ -119,7 +106,7 @@ class ExplorePage extends StatelessWidget {
               ),
             ),
           );
-        }).toList(),
+        },
       ),
     );
   }
