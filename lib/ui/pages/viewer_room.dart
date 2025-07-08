@@ -15,6 +15,8 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
   int exp = 0;
   int level = 1;
   bool showGiftPopup = false;
+  bool showInfo = true;
+
   final TextEditingController _chatController = TextEditingController();
   List<Map<String, String>> chatMessages = [];
 
@@ -30,12 +32,16 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
       setState(() {
         coin -= gift['price'];
         exp += gift['price'] * 10;
-        level = (exp ~/ 100) + 1;
+        level = ((exp ~/ 100) + 1).toInt(); // ✅ แก้ type
         chatMessages.add({
           "text": "ส่ง ${gift['name']} 🎁 (${gift['price']} coin)",
           "level": "Lv.$level"
         });
         showGiftPopup = false;
+        showInfo = true;
+      });
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) setState(() => showInfo = false);
       });
     }
   }
@@ -49,8 +55,20 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
           "level": "Lv.$level"
         });
         _chatController.clear();
+        showInfo = true;
+      });
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) setState(() => showInfo = false);
       });
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) setState(() => showInfo = false);
+    });
   }
 
   @override
@@ -176,22 +194,23 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
               ),
             ),
 
-          // Coin / EXP แสดงเฉพาะตอนเข้าห้อง
-          Positioned(
-            top: 40,
-            right: 16,
-            child: AnimatedOpacity(
-              opacity: 1,
-              duration: const Duration(seconds: 3),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text("💰 $coin coin", style: const TextStyle(color: Colors.white, fontSize: 14)),
-                  Text("EXP: $exp", style: const TextStyle(color: Colors.white54, fontSize: 12)),
-                ],
+          // Coin / EXP แสดงเฉพาะตอนเข้า + หลังพิมพ์/ส่งของขวัญ
+          if (showInfo)
+            Positioned(
+              top: 40,
+              right: 16,
+              child: AnimatedOpacity(
+                opacity: 1,
+                duration: const Duration(milliseconds: 500),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text("💰 $coin coin", style: const TextStyle(color: Colors.white, fontSize: 14)),
+                    Text("EXP: $exp", style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                  ],
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
