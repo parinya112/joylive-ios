@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'viewer_room.dart';
+import 'ui/pages/viewer_room.dart';
 
 void main() => runApp(const JoyLivethApp());
 
