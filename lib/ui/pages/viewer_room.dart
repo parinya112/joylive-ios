@@ -11,31 +11,34 @@ class ViewerRoomPage extends StatefulWidget {
 }
 
 class _ViewerRoomPageState extends State<ViewerRoomPage> {
-  int coin = 1200;
+  int coin = 1001;
   int exp = 0;
-  int level = 1;
+  int level = 2;
   bool showGiftPopup = false;
+  bool showTopStats = false;
 
   final TextEditingController _chatController = TextEditingController();
   final List<Map<String, dynamic>> chatMessages = [];
 
   final List<Map<String, dynamic>> gifts = [
+    {'name': 'ยูนิคอร์น', 'price': 199},
     {'name': 'หัวใจ', 'price': 10},
     {'name': 'ดอกไม้', 'price': 50},
-    {'name': 'ยูนิคอร์น', 'price': 199},
   ];
 
   void sendGift(Map<String, dynamic> gift) {
-    if (coin >= (gift['price'] as num).toInt()) {
+    final price = (gift['price'] as num).toInt();
+    if (coin >= price) {
       setState(() {
-        coin -= (gift['price'] as num).toInt();
-        exp += (gift['price'] as num).toInt();
+        coin -= price;
+        exp += price;
         level = 1 + (exp / 100).floor();
         chatMessages.add({
           'type': 'gift',
           'msg': '🎁 ส่ง ${gift['name']}',
           'level': level,
         });
+        showTopStats = true;
       });
     }
     setState(() => showGiftPopup = false);
@@ -45,12 +48,9 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
     final msg = _chatController.text.trim();
     if (msg.isNotEmpty) {
       setState(() {
-        chatMessages.add({
-          'type': 'chat',
-          'msg': msg,
-          'level': level,
-        });
+        chatMessages.add({'type': 'chat', 'msg': msg, 'level': level});
         _chatController.clear();
+        showTopStats = true;
       });
     }
   }
@@ -58,86 +58,104 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
           Container(
             color: Colors.black,
-            child: Center(
-              child: Icon(Icons.videocam, size: 100, color: Colors.white30),
+            child: const Center(
+              child: Icon(Icons.videocam, color: Colors.white30, size: 100),
             ),
           ),
+
+          // Top left: Back + VJ info
           Positioned(
             top: 40,
             left: 16,
-            right: 16,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    CircleAvatar(backgroundColor: Colors.pink, child: Text(widget.vjName[0])),
-                    const SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(widget.vjName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        Text(widget.status, style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
-                      ],
-                    ),
-                  ],
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: const CircleAvatar(
+                    backgroundColor: Colors.white24,
+                    child: Icon(Icons.arrow_back, color: Colors.white),
+                  ),
                 ),
+                const SizedBox(width: 10),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('💰 $coin', style: const TextStyle(color: Colors.white)),
-                    Text('LV $level 🎖️', style: const TextStyle(color: Colors.white)),
+                    Text(widget.vjName,
+                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    Text(widget.status,
+                        style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
                   ],
                 ),
               ],
             ),
           ),
+
+          // Top right: Coin + Level (เฉพาะตอนส่งของขวัญ/พิมพ์)
+          if (showTopStats)
+            Positioned(
+              top: 40,
+              right: 16,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('💰 $coin', style: const TextStyle(color: Colors.white)),
+                  Text('LV $level 🏅', style: const TextStyle(color: Colors.white)),
+                ],
+              ),
+            ),
+
+          // Chat overlay
           Positioned(
-            bottom: 120,
+            bottom: 130,
             left: 16,
             right: 16,
             child: Column(
-              children: chatMessages.reversed.take(6).map((msg) {
-                return Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 4),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: msg['type'] == 'gift' ? Colors.pinkAccent.withOpacity(0.7) : Colors.black54,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      'LV ${msg['level']} : ${msg['msg']}',
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
-                    ),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: chatMessages.reversed.take(5).map((msg) {
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: msg['type'] == 'gift' ? Colors.pinkAccent : Colors.white24,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'LV ${msg['level']} : ${msg['msg']}',
+                    style: const TextStyle(color: Colors.white, fontSize: 14),
                   ),
                 );
               }).toList(),
             ),
           ),
+
+          // Input box
           Positioned(
-            bottom: 70,
+            bottom: 60,
             left: 16,
             right: 100,
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: Colors.white70,
-                borderRadius: BorderRadius.circular(20),
+                color: Colors.grey.shade800,
+                borderRadius: BorderRadius.circular(30),
               ),
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _chatController,
+                      style: const TextStyle(color: Colors.white),
                       decoration: const InputDecoration(
-                        border: InputBorder.none,
                         hintText: 'พิมพ์ข้อความ...',
+                        hintStyle: TextStyle(color: Colors.white60),
+                        border: InputBorder.none,
                       ),
+                      onTap: () => setState(() => showTopStats = true),
                       onSubmitted: (_) => sendMessage(),
                     ),
                   ),
@@ -149,31 +167,36 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
               ),
             ),
           ),
+
+          // Bottom buttons
           Positioned(
             bottom: 10,
-            left: 16,
-            right: 16,
+            left: 32,
+            right: 32,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                IconButton(icon: const Icon(Icons.videocam, color: Colors.white), onPressed: () {}),
-                IconButton(
-                  icon: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
-                  onPressed: () => setState(() => showGiftPopup = true),
+                const Icon(Icons.videocam, color: Colors.white),
+                GestureDetector(
+                  onTap: () => setState(() => showGiftPopup = true),
+                  child: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
                 ),
-                IconButton(icon: const Icon(Icons.sports_martial_arts, color: Colors.white), onPressed: () {}),
+                const Icon(Icons.sports_martial_arts, color: Colors.white),
               ],
             ),
           ),
+
+          // Gift popup
           if (showGiftPopup)
             Positioned.fill(
               child: GestureDetector(
                 onTap: () => setState(() => showGiftPopup = false),
                 child: Container(
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withOpacity(0.8),
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.symmetric(horizontal: 24),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
