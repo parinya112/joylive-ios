@@ -1,18 +1,53 @@
 import 'package:flutter/material.dart';
 
-class ViewerRoomPage extends StatelessWidget {
+class ViewerRoomPage extends StatefulWidget {
   const ViewerRoomPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    int userLevel = 1;
-    int userExp = 50;
-    int userCoins = 1230;
+  State<ViewerRoomPage> createState() => _ViewerRoomPageState();
+}
 
+class _ViewerRoomPageState extends State<ViewerRoomPage> {
+  int userLevel = 1;
+  int userExp = 40;
+  int userCoins = 1230;
+  int vjCoins = 89456;
+
+  final TextEditingController _chatController = TextEditingController();
+  final List<String> chatMessages = [];
+
+  void sendChat() {
+    if (_chatController.text.trim().isEmpty) return;
+    setState(() {
+      chatMessages.add('LV $userLevel 🎖️: ${_chatController.text}');
+    });
+    _chatController.clear();
+  }
+
+  void sendGift() {
+    setState(() {
+      userCoins -= 35;
+      userExp += 20;
+      vjCoins += 35;
+      chatMessages.add('🎁 คุณส่งของขวัญ! (+20 EXP)');
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('🎁 ส่งของขวัญสำเร็จ! VJ ได้รับ +35 coin'),
+        duration: const Duration(seconds: 2),
+        backgroundColor: Colors.black87,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         children: [
+          // Title Live
           const Center(
             child: Text(
               'VJ Miko1 - LIVE',
@@ -29,97 +64,107 @@ class ViewerRoomPage extends StatelessWidget {
               radius: 25,
               child: IconButton(
                 icon: const Icon(Icons.close, color: Colors.red),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
+                onPressed: () => Navigator.pop(context),
               ),
             ),
           ),
 
-          // มุมซ้ายบน: LV
+          // Avatar + Coin VJ
           Positioned(
             top: 40,
             left: 20,
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.orange,
-                borderRadius: BorderRadius.circular(30),
+                color: Colors.black87,
+                borderRadius: BorderRadius.circular(40),
               ),
-              child: Text(
-                'LV $userLevel',
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+              child: Row(
+                children: [
+                  const CircleAvatar(
+                    backgroundImage: AssetImage('assets/avatar.jpg'), // ใส่รูปจริงตรงนี้
+                    radius: 15,
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('VJ Miko1', style: TextStyle(color: Colors.white, fontSize: 12)),
+                      Text(
+                        '💰 $vjCoins',
+                        style: const TextStyle(color: Colors.amber, fontSize: 12),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
 
-          // มุมขวาบน: Coin
+          // แสดงแชท Overlay
           Positioned(
-            top: 40,
-            right: 80,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.amber.shade700,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Text(
-                '💰 $userCoins',
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-              ),
+            bottom: 150,
+            left: 20,
+            right: 20,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: chatMessages
+                  .take(4)
+                  .toList()
+                  .reversed
+                  .map((msg) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Text(msg, style: const TextStyle(fontSize: 14, color: Colors.black)),
+                      ))
+                  .toList(),
             ),
           ),
 
-          // ล่างสุด: EXP + ปุ่มของขวัญ + แชท
+          // EXP bar + ของขวัญ + แชท
           Positioned(
             bottom: 20,
             left: 20,
             right: 20,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // EXP Progress Bar
+                // EXP BAR
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: LinearProgressIndicator(
                     value: userExp / 100,
                     minHeight: 8,
                     backgroundColor: Colors.grey.shade300,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.purpleAccent,
-                    ),
+                    valueColor: const AlwaysStoppedAnimation<Color>(Colors.deepPurple),
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
 
-                // ปุ่มส่งของขวัญ + ช่องแชท + ปุ่มส่ง
+                // ปุ่ม + แชท
                 Row(
                   children: [
-                    // ปุ่มส่งของขวัญ
+                    // ส่งของขวัญ
                     Expanded(
                       flex: 2,
                       child: ElevatedButton.icon(
-                        onPressed: () {
-                          // TODO: เปิด Gift Popup
-                        },
+                        onPressed: sendGift,
                         icon: const Icon(Icons.card_giftcard, color: Colors.red),
                         label: const Text("ส่งของขวัญ"),
                         style: ElevatedButton.styleFrom(
                           foregroundColor: Colors.purple,
                           backgroundColor: Colors.white,
                           elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                         ),
                       ),
                     ),
                     const SizedBox(width: 8),
 
-                    // ช่องพิมพ์แชท
+                    // ช่องพิมพ์
                     Expanded(
                       flex: 3,
                       child: TextField(
+                        controller: _chatController,
+                        onSubmitted: (_) => sendChat(),
                         decoration: InputDecoration(
                           hintText: "พิมพ์แชท...",
                           filled: true,
@@ -134,18 +179,14 @@ class ViewerRoomPage extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
 
-                    // ปุ่มส่งแชท
+                    // ส่งข้อความ
                     ElevatedButton(
-                      onPressed: () {
-                        // TODO: ส่งแชท
-                      },
+                      onPressed: sendChat,
                       child: const Text("ส่ง"),
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.deepPurple,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                       ),
                     ),
                   ],
