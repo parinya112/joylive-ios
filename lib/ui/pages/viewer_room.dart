@@ -26,11 +26,11 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
   ];
 
   void sendGift(Map<String, dynamic> gift) {
-    if (coin >= gift['price']) {
+    if (coin >= (gift['price'] as num).toInt()) {
       setState(() {
-        coin -= gift['price'];
-        exp += gift['price'];
-        level = 1 + (exp ~/ 100);
+        coin -= (gift['price'] as num).toInt();
+        exp += (gift['price'] as num).toInt();
+        level = 1 + (exp / 100).floor();
         chatMessages.add({
           'type': 'gift',
           'msg': '🎁 ส่ง ${gift['name']}',
@@ -60,15 +60,12 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // ไลฟ์จำลอง
           Container(
             color: Colors.black,
             child: Center(
               child: Icon(Icons.videocam, size: 100, color: Colors.white30),
             ),
           ),
-
-          // UI ด้านบน
           Positioned(
             top: 40,
             left: 16,
@@ -76,7 +73,6 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // VJ Info
                 Row(
                   children: [
                     CircleAvatar(backgroundColor: Colors.pink, child: Text(widget.vjName[0])),
@@ -90,7 +86,6 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
                     ),
                   ],
                 ),
-                // Coin / EXP
                 Column(
                   children: [
                     Text('💰 $coin', style: const TextStyle(color: Colors.white)),
@@ -100,8 +95,6 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
               ],
             ),
           ),
-
-          // แชท overlay
           Positioned(
             bottom: 120,
             left: 16,
@@ -126,8 +119,6 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
               }).toList(),
             ),
           ),
-
-          // กล่องพิมพ์ข้อความ
           Positioned(
             bottom: 70,
             left: 16,
@@ -158,8 +149,6 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
               ),
             ),
           ),
-
-          // Bottom Buttons
           Positioned(
             bottom: 10,
             left: 16,
@@ -176,8 +165,6 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
               ],
             ),
           ),
-
-          // Gift Popup
           if (showGiftPopup)
             Positioned.fill(
               child: GestureDetector(
