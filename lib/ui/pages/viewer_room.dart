@@ -11,64 +11,48 @@ class ViewerRoomPage extends StatefulWidget {
 }
 
 class _ViewerRoomPageState extends State<ViewerRoomPage> {
-  int coin = 1000;
+  int coin = 1200;
   int exp = 0;
   int level = 1;
   bool showGiftPopup = false;
-  bool showInfo = true;
 
   final TextEditingController _chatController = TextEditingController();
-  List<Map<String, String>> chatMessages = [];
+  final List<Map<String, dynamic>> chatMessages = [];
 
   final List<Map<String, dynamic>> gifts = [
-    {"name": "เค้กน่ารัก", "price": 10},
-    {"name": "ครัวซองต์", "price": 99},
-    {"name": "แซนด์วิช", "price": 299},
-    {"name": "เค้กธงลาว", "price": 999},
+    {'name': 'หัวใจ', 'price': 10},
+    {'name': 'ดอกไม้', 'price': 50},
+    {'name': 'ยูนิคอร์น', 'price': 199},
   ];
 
-  void _sendGift(Map<String, dynamic> gift) {
+  void sendGift(Map<String, dynamic> gift) {
     if (coin >= gift['price']) {
       setState(() {
         coin -= gift['price'];
-        exp += gift['price'] * 10;
-        level = ((exp ~/ 100) + 1).toInt(); // ✅ แก้ type
+        exp += gift['price'];
+        level = 1 + (exp ~/ 100);
         chatMessages.add({
-          "text": "ส่ง ${gift['name']} 🎁 (${gift['price']} coin)",
-          "level": "Lv.$level"
+          'type': 'gift',
+          'msg': '🎁 ส่ง ${gift['name']}',
+          'level': level,
         });
-        showGiftPopup = false;
-        showInfo = true;
-      });
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) setState(() => showInfo = false);
       });
     }
+    setState(() => showGiftPopup = false);
   }
 
-  void _sendChat() {
-    final text = _chatController.text;
-    if (text.trim().isNotEmpty) {
+  void sendMessage() {
+    final msg = _chatController.text.trim();
+    if (msg.isNotEmpty) {
       setState(() {
         chatMessages.add({
-          "text": text.trim(),
-          "level": "Lv.$level"
+          'type': 'chat',
+          'msg': msg,
+          'level': level,
         });
         _chatController.clear();
-        showInfo = true;
-      });
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) setState(() => showInfo = false);
       });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) setState(() => showInfo = false);
-    });
   }
 
   @override
@@ -76,28 +60,66 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
     return Scaffold(
       body: Stack(
         children: [
-          // ไลฟ์จำลอง (พื้นหลัง)
-          Container(color: Colors.black87),
+          // ไลฟ์จำลอง
+          Container(
+            color: Colors.black,
+            child: Center(
+              child: Icon(Icons.videocam, size: 100, color: Colors.white30),
+            ),
+          ),
 
-          // Chat overlay
+          // UI ด้านบน
           Positioned(
-            bottom: 130,
-            left: 10,
-            right: 10,
+            top: 40,
+            left: 16,
+            right: 16,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // VJ Info
+                Row(
+                  children: [
+                    CircleAvatar(backgroundColor: Colors.pink, child: Text(widget.vjName[0])),
+                    const SizedBox(width: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(widget.vjName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        Text(widget.status, style: const TextStyle(color: Colors.redAccent, fontSize: 12)),
+                      ],
+                    ),
+                  ],
+                ),
+                // Coin / EXP
+                Column(
+                  children: [
+                    Text('💰 $coin', style: const TextStyle(color: Colors.white)),
+                    Text('LV $level 🎖️', style: const TextStyle(color: Colors.white)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          // แชท overlay
+          Positioned(
+            bottom: 120,
+            left: 16,
+            right: 16,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: chatMessages.map((msg) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2),
+              children: chatMessages.reversed.take(6).map((msg) {
+                return Align(
+                  alignment: Alignment.centerLeft,
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    margin: const EdgeInsets.only(bottom: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: msg['type'] == 'gift' ? Colors.pinkAccent.withOpacity(0.7) : Colors.black54,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      '${msg['level']} : ${msg['text']}',
-                      style: const TextStyle(color: Colors.white),
+                      'LV ${msg['level']} : ${msg['msg']}',
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
                   ),
                 );
@@ -105,109 +127,84 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
             ),
           ),
 
-          // ปุ่มพิมพ์แชท & ส่งของขวัญ
+          // กล่องพิมพ์ข้อความ
           Positioned(
-            bottom: 60,
-            left: 10,
-            right: 10,
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _chatController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      hintText: "พิมพ์ข้อความ...",
-                      hintStyle: const TextStyle(color: Colors.white54),
-                      filled: true,
-                      fillColor: Colors.black45,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
+            bottom: 70,
+            left: 16,
+            right: 100,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: Colors.white70,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _chatController,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'พิมพ์ข้อความ...',
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      onSubmitted: (_) => sendMessage(),
                     ),
-                    onSubmitted: (_) => _sendChat(),
                   ),
-                ),
-                const SizedBox(width: 8),
+                  IconButton(
+                    icon: const Icon(Icons.send, color: Colors.pink),
+                    onPressed: sendMessage,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Bottom Buttons
+          Positioned(
+            bottom: 10,
+            left: 16,
+            right: 16,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton(icon: const Icon(Icons.videocam, color: Colors.white), onPressed: () {}),
                 IconButton(
                   icon: const Icon(Icons.card_giftcard, color: Colors.pinkAccent),
                   onPressed: () => setState(() => showGiftPopup = true),
                 ),
+                IconButton(icon: const Icon(Icons.swords, color: Colors.white), onPressed: () {}),
               ],
             ),
           ),
 
-          // ป๊อปอัปเลือกของขวัญ
+          // Gift Popup
           if (showGiftPopup)
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                color: Colors.white,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text("เลือกของขวัญ", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      height: 120,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: gifts.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
-                        itemBuilder: (context, index) {
-                          final gift = gifts[index];
-                          return GestureDetector(
-                            onTap: () => _sendGift(gift),
-                            child: Container(
-                              width: 100,
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.pink.shade50,
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.pinkAccent),
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(gift['name'], style: const TextStyle(fontSize: 14)),
-                                  const SizedBox(height: 8),
-                                  Text('${gift['price']} coin', style: const TextStyle(fontSize: 12)),
-                                ],
-                              ),
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () => setState(() => showGiftPopup = false),
+                child: Container(
+                  color: Colors.black.withOpacity(0.7),
+                  child: Center(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: gifts.map((gift) {
+                          return ListTile(
+                            title: Text('${gift['name']} - ${gift['price']} coin'),
+                            trailing: ElevatedButton(
+                              onPressed: () => sendGift(gift),
+                              child: const Text('ส่ง'),
                             ),
                           );
-                        },
+                        }).toList(),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    ElevatedButton(
-                      onPressed: () => setState(() => showGiftPopup = false),
-                      child: const Text("ปิด"),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          // Coin / EXP แสดงเฉพาะตอนเข้า + หลังพิมพ์/ส่งของขวัญ
-          if (showInfo)
-            Positioned(
-              top: 40,
-              right: 16,
-              child: AnimatedOpacity(
-                opacity: 1,
-                duration: const Duration(milliseconds: 500),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text("💰 $coin coin", style: const TextStyle(color: Colors.white, fontSize: 14)),
-                    Text("EXP: $exp", style: const TextStyle(color: Colors.white54, fontSize: 12)),
-                  ],
+                  ),
                 ),
               ),
             ),
