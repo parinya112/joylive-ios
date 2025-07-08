@@ -1,15 +1,15 @@
 plugins {
     id("com.android.application")
-    kotlin("android")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
+    namespace = "com.joyliveth.app" // ✅ เปลี่ยนให้ตรงกับ AndroidManifest ถ้าชื่อไม่ตรง
     compileSdk = 34
-    ndkVersion = "27.0.12077973" // 👈 เพื่อรองรับ Agora SDK
 
     defaultConfig {
-        applicationId = "com.example.joy_liveth"
-        minSdk = 21
+        applicationId = "com.joyliveth.app"
+        minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -36,5 +36,8 @@ android {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.0")
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("com.google.android.material:material:1.11.0")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 }
