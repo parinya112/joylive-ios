@@ -8,10 +8,11 @@ class ViewerRoomPage extends StatefulWidget {
 }
 
 class _ViewerRoomPageState extends State<ViewerRoomPage> {
-  int userLevel = 1;
-  int userExp = 50;
+  int userLevel = 2;
+  int userExp = 80;
   int userCoins = 1230;
   int vjEarned = 0;
+
   final TextEditingController _chatController = TextEditingController();
   final List<String> chatMessages = [];
   final List<String> giftAnimations = [];
@@ -29,12 +30,17 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
       int giftValue = 499;
       userCoins -= giftValue;
       userExp += 20;
-      vjEarned += giftValue;
-      giftAnimations.add('🎁 ส่งของขวัญ 499 coin ให้ VJ!');
+      if (userExp >= 100) {
+        userLevel++;
+        userExp -= 100;
+      }
+      vjEarned = giftValue;
+      giftAnimations.add('🎁 ส่งของขวัญ $giftValue coin ให้ VJ!');
     });
 
     Future.delayed(const Duration(seconds: 3), () {
       setState(() {
+        vjEarned = 0;
         if (giftAnimations.isNotEmpty) {
           giftAnimations.removeAt(0);
         }
@@ -50,7 +56,7 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
         children: [
           const Center(
             child: Text(
-              'VJ Miko1 - LIVE',
+              'VJ Miko2 - PK',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
@@ -68,6 +74,49 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
               ),
             ),
           ),
+
+          // มุมบนซ้าย: LV ผู้ชม
+          Positioned(
+            top: 40,
+            left: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.orange,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text('LV $userLevel', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            ),
+          ),
+
+          // มุมบนกลาง: Coin ผู้ชม
+          Positioned(
+            top: 40,
+            left: 100,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.amber.shade100,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text('💰 $userCoins coin', style: const TextStyle(fontWeight: FontWeight.bold)),
+            ),
+          ),
+
+          // แสดงรายได้ VJ ชั่วคราว
+          if (vjEarned > 0)
+            Positioned(
+              top: 70,
+              right: 20,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text('🎉 VJ ได้รับ $vjEarned coin!', style: const TextStyle(fontWeight: FontWeight.bold)),
+              ),
+            ),
 
           // Gift Animation
           Positioned(
@@ -111,7 +160,7 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
             ),
           ),
 
-          // EXP Bar + Gift/Chat
+          // EXP Bar + Gift/Chat Input
           Positioned(
             bottom: 20,
             left: 20,
@@ -130,6 +179,7 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
                 ),
                 const SizedBox(height: 10),
 
+                // ปุ่มส่งของขวัญ + แชท
                 Row(
                   children: [
                     Expanded(
