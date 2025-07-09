@@ -3,8 +3,13 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 
 class ViewerRoomPage extends StatefulWidget {
   final String channelName;
+  final String vjName;
 
-  const ViewerRoomPage({Key? key, required this.channelName}) : super(key: key);
+  const ViewerRoomPage({
+    Key? key,
+    required this.channelName,
+    required this.vjName,
+  }) : super(key: key);
 
   @override
   State<ViewerRoomPage> createState() => _ViewerRoomPageState();
@@ -64,7 +69,7 @@ class _ViewerRoomPageState extends State<ViewerRoomPage> {
     return Scaffold(
       body: Stack(
         children: [
-          Center(child: Text('🎥 LIVE STREAMING: ${widget.channelName}')),
+          Center(child: Text('🎥 LIVE: ${widget.vjName}', style: const TextStyle(fontSize: 20))),
 
           // Coin + EXP
           Positioned(

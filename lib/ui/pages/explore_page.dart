@@ -1,112 +1,161 @@
 import 'package:flutter/material.dart';
-import 'viewer_room.dart';
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 
-class ExplorePage extends StatelessWidget {
-  const ExplorePage({super.key});
+class ViewerRoomPage extends StatefulWidget {
+  final String channelName; // ใช้ได้เช่น vjName
+  final String vjName;
+  final String status;
 
-  final List<Map<String, String>> vjs = const [
-    {"name": "VJ Miko1", "status": "LIVE"},
-    {"name": "VJ Miko2", "status": "PK"},
-    {"name": "VJ Miko3", "status": "LIVE"},
-    {"name": "VJ Miko4", "status": "PK"},
-  ];
+  const ViewerRoomPage({
+    Key? key,
+    required this.vjName,
+    required this.status,
+  })  : channelName = vjName, // ใช้ชื่อ VJ เป็น channel ไปก่อน
+        super(key: key);
 
-  Color cardColor(String status) {
-    switch (status) {
-      case 'LIVE':
-        return const Color(0xFF181818);
-      case 'PK':
-        return const Color(0xFF2A002A);
-      default:
-        return Colors.grey.shade800;
-    }
+  @override
+  State<ViewerRoomPage> createState() => _ViewerRoomPageState();
+}
+
+class _ViewerRoomPageState extends State<ViewerRoomPage> {
+  static const String appId = 'ba1f26c4d2c74113abd3a8db1082eb32';
+  static const String token =
+      '007eJxTYJhQK+O8eW/A94N3RR45T5m9WNLIbqJXUIqNQIxU3qUkq1sKDEmJhmlGZskmKUbJ5iaGhsaJSSnGiRYpSYYGFkapScZGaz0zMxoCGRm2T';
+  RtcEngine? _engine;
+
+  int coin = 1230;
+  int exp = 200;
+  int level = 5;
+  List<String> chatMessages = [];
+
+  final TextEditingController _chatController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    initAgora();
   }
 
-  Color badgeColor(String status) {
-    switch (status) {
-      case 'LIVE':
-        return Colors.redAccent;
-      case 'PK':
-        return Colors.purpleAccent;
-      default:
-        return Colors.grey;
+  Future<void> initAgora() async {
+    _engine = createAgoraRtcEngine();
+    await _engine!.initialize(RtcEngineContext(appId: appId));
+    await _engine!.enableVideo();
+    await _engine!.startPreview();
+    await _engine!.joinChannel(
+      token: token,
+      channelId: widget.channelName,
+      uid: 0,
+      options: const ChannelMediaOptions(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _engine?.leaveChannel();
+    _engine?.release();
+    super.dispose();
+  }
+
+  void sendChatMessage() {
+    final text = _chatController.text.trim();
+    if (text.isNotEmpty) {
+      setState(() {
+        chatMessages.add('LV $level: $text');
+        _chatController.clear();
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GridView.builder(
-        padding: const EdgeInsets.all(12),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 0.75,
-        ),
-        itemCount: vjs.length,
-        itemBuilder: (context, index) {
-          final vj = vjs[index];
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ViewerRoomPage(
-                    vjName: vj['name']!,
-                    status: vj['status']!,
-                  ),
-                ),
-              );
-            },
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardColor(vj['status']!),
-                borderRadius: BorderRadius.circular(16),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/vj_preview.png'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-              child: Stack(
-                children: [
-                  Positioned(
-                    top: 10,
-                    left: 10,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: badgeColor(vj['status']!),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        vj['status']!,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    left: 10,
-                    child: Text(
-                      vj['name']!,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        shadows: [Shadow(color: Colors.black, blurRadius: 4)],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+      body: Stack(
+        children: [
+          Center(
+            child: Text(
+              '🎥 ${widget.vjName} [${widget.status}]',
+              style: const TextStyle(fontSize: 20),
             ),
-          );
-        },
+          ),
+
+          // Coin
+          Positioned(
+            top: 40,
+            right: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.black54,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text('💰 $coin coin',
+                  style: const TextStyle(color: Colors.white)),
+            ),
+          ),
+
+          // Level
+          Positioned(
+            top: 40,
+            left: 20,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.withOpacity(0.7),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text('LV $level 🎖️',
+                  style: const TextStyle(color: Colors.white)),
+            ),
+          ),
+
+          // แชท Overlay
+          Positioned(
+            bottom: 90,
+            left: 12,
+            right: 12,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: chatMessages.map((msg) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 2),
+                  child: Text(msg,
+                      style: const TextStyle(color: Colors.white)),
+                );
+              }).toList(),
+            ),
+          ),
+
+          // พิมพ์แชท
+          Positioned(
+            bottom: 20,
+            left: 12,
+            right: 12,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _chatController,
+                    decoration: InputDecoration(
+                      hintText: 'พิมพ์ข้อความ...',
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 16),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: sendChatMessage,
+                )
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
